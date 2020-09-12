@@ -1,9 +1,15 @@
-# Rylan12 Blame
+# homebrew-blame
 
-## How do I install these formulae?
-`brew install rylan12/blame/<formula>`
+External [Homebrew](https://github.com/Homebrew/brew) command for viewing `git blame` output for a formula or cask.
 
-Or `brew tap rylan12/blame` and then `brew install <formula>`.
+## Installation
 
-## Documentation
-`brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).
+```sh
+brew tap rylan12/blame
+```
+
+## Usage
+
+```sh
+brew blame <formula>
+```
