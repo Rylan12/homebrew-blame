@@ -6,9 +6,9 @@ module Homebrew
   def blame_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
-        `blame` <formula> [<revision>] [-L <line> | -L <start>,<end>]
+        `blame` <formula|cask> [<revision>] [-L <line> | -L <start>,<end>]
 
-        Show `git blame` output on <formula>.
+        Show `git blame` output of a <formula> or <cask>.
       EOS
       flag "-L", "--lines=",
            description: "Annotate only the given line range. "\
@@ -29,11 +29,17 @@ module Homebrew
     # user path, too.
     ENV["PATH"] = ENV["HOMEBREW_PATH"]
 
-    formula, revision = args.named
-    path = Formulary.path formula
+    name, revision = args.named
+    formula_path = Formulary.path name
+    cask_path = Cask::CaskLoader.path name
+    path = if File.exist? formula_path
+      formula_path
+    elsif File.exist? cask_path
+      cask_path
+    end
     tap = Tap.from_path path
 
-    odie "No available formula with the name \"#{formula}\"" unless File.exist? path
+    odie "No available formula or cask with the name \"#{name}\"" unless File.exist? path
 
     lines = args.lines
     lines = "#{lines},#{lines}" if lines.present? && !lines.include?(",")
