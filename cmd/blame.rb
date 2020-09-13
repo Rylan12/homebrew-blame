@@ -6,10 +6,17 @@ module Homebrew
   def blame_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
-        `blame` <formula> [<revision>]
+        `blame` <formula> [<revision>] [-L <line> | -L <start>,<end>]
 
         Show `git blame` output on <formula>.
       EOS
+      flag "-L", "--lines=",
+           description: "Annotate only the given line range. "\
+                        "`-L <line>` will annotate only the given line number. "\
+                        "`-L <start>``,<end>` will annotate from <start> to <end>. "\
+                        "Leave either <start> or <end> blank (keeping the comma) "\
+                        "to annotate from the first line to <end> or from <start> "\
+                        "to the last line respectively."
       min_named 1
       max_named 2
     end
@@ -26,10 +33,15 @@ module Homebrew
     path = Formulary.path formula
     tap = Tap.from_path path
 
-    git_blame path.dirname, path, tap, revision
+    odie "No available formula with the name \"#{formula}\"" unless File.exist? path
+
+    lines = args.lines
+    lines = "#{lines},#{lines}" if lines.present? && !lines.include?(",")
+
+    git_blame path.dirname, path, tap, revision, lines
   end
 
-  def git_blame(cd_dir, path, tap, revision)
+  def git_blame(cd_dir, path, tap, revision, lines)
     cd cd_dir
     repo = Utils.popen_read("git rev-parse --show-toplevel").chomp
     name = tap.to_s
@@ -45,6 +57,7 @@ module Homebrew
 
     git_args = []
     git_args << revision if revision.present?
+    git_args << "-L" << lines if lines.present?
     git_args += ["--", path] if path.present?
     system "git", "blame", *git_args
   end
