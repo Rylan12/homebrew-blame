@@ -41,14 +41,14 @@ module Homebrew
     odie "No available formula or cask with the name \"#{name}\"" unless File.exist? path
 
     lines = args.lines
-    lines = "#{lines},#{lines}" if lines.present? && !lines.include?(",")
+    lines = "#{lines},#{lines}" if lines.present? && lines.exclude?(",")
 
     git_blame path.dirname, path, tap, revision, lines
   end
 
   def git_blame(cd_dir, path, tap, revision, lines)
     cd cd_dir
-    repo = Utils.popen_read("git rev-parse --show-toplevel").chomp
+    repo = Utils.popen_read("git", "rev-parse", "--show-toplevel").chomp
     name = tap.to_s
     git_cd = "$(brew --repo #{tap})"
 
