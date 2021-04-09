@@ -5,9 +5,9 @@ module Homebrew
 
   def blame_args
     Homebrew::CLI::Parser.new do
-      usage_banner <<~EOS
-        `blame` <formula|cask> [<revision>] [-L <line> | -L <start>,<end>]
+      usage_banner "`blame` <formula|cask> [<revision>] [-L <line> | -L <start>,<end>]"
 
+      description <<~EOS
         Show `git blame` output of a <formula> or <cask>.
       EOS
       flag "-L", "--lines=",
@@ -17,8 +17,7 @@ module Homebrew
                         "Leave either <start> or <end> blank (keeping the comma) "\
                         "to annotate from the first line to <end> or from <start> "\
                         "to the last line respectively."
-      min_named 1
-      max_named 2
+      named_args min: 1, max: 2
     end
   end
 
